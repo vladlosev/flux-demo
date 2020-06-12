@@ -1,0 +1,8 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  namespace: demo3
+  name: podinfo
+spec:
+  chart:
+    version: 3.2.1
