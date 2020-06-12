@@ -1,0 +1,10 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  namespace: demo3
+  name: podinfo
+spec:
+  chart:
+    repository: https://stefanprodan.github.io/podinfo
+    name: podinfo
+    version: 3.2.0
