@@ -49,9 +49,10 @@ if test -z "$flux_root_dir" ; then
   usage
 fi
 
-require_binary helm
-require_binary kubectl
 require_binary fluxctl
+require_binary helm
+require_binary jq
+require_binary kubectl
 
 repo_host_port="$(echo "$git_repo" | sed -e 's/^\(ssh:\/\/\)\{0,1\}\([a-z][a-z0-9-]*@\)\{0,1\}\([^\/]*\).*/\3/')"
 repo_host="${repo_host_port%:*}"
@@ -103,7 +104,7 @@ helm upgrade -i helm-operator fluxcd/helm-operator \
 
 
 flux_pod_running() {
-  POD_COUNT="$(kubectl -n "$namespace" get pods -l app=flux -o json\
+  pod_count="$(kubectl -n "$namespace" get pods -l app=flux -o json\
     | jq '
         .items 
         | map(
@@ -111,7 +112,7 @@ flux_pod_running() {
               .status.phase == "Running"
               and (.status.containerStatuses | all(.ready))))
         | length')"
-  test "$POD_COUNT" -gt 0
+  test "$pod_count" -gt 0
 }
 
 echo -n "Waiting for Flux pod to start..."
