@@ -111,7 +111,7 @@ flux_pod_running() {
             select(
               .status.phase == "Running"
               and (.status.containerStatuses | all(.ready))))
-        | length')"
+          | length')"
   test "$pod_count" -gt 0
 }
 
