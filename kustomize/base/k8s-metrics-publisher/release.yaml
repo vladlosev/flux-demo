@@ -1,0 +1,23 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: k8s-metrics-publisher
+spec:
+  rollback:
+    enable: true
+    retry: true
+  releaseName: k8s-metrics-publisher
+  chart:
+    git: https://github.com/vladlosev/k8s-metrics-publisher.git
+    path: charts/k8s-metrics-publisher
+  values:
+    image:
+      repository: vladlosev/k8s-metrics-publisher
+      tag: v0.1.1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 100Mi
+      limits:
+        cpu: 100m
+        memory: 100Mi
