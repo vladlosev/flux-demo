@@ -1,0 +1,48 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: ambassador
+spec:
+  releaseName: ambassador
+  chart:
+    repository: https://www.getambassador.io
+    name: ambassador
+    version: 6.4.1
+  skipCRDs: false
+  values:
+    image:
+      repository: quay.io/datawire/ambassador
+      tag: 1.5.0
+    crds:
+      create: true
+      enabled: true
+      keep: false
+    scope:
+      singleNamespace: true
+    enableAES: false
+    authService:
+      create: false
+    service:
+      type: NodePort
+      ports:
+      - name: http
+        port: 80
+        hostPort: 80
+        targetPort: 8080
+      - name: https
+        port: 443
+        hostPort: 443
+        targetPort: 8443
+    deploymentStrategy:
+      type: Recreate
+    autoscaling:
+      enabled: false
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 25m
+        memory: 150Mi
+      limits:
+        # CPU limit is left unset until we need it (e.g., we experience
+        # issues with runaway CPU consumption).
+        memory: 250Mi

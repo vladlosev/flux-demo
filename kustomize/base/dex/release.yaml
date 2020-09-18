@@ -1,0 +1,72 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: dex
+spec:
+  releaseName: dex
+  chart:
+    repository: https://kubernetes-charts.storage.googleapis.com
+    name: dex
+    version: 2.11.0
+  skipCRDs: true
+  values:
+    image: quay.io/dexidp/dex
+    imageTag: v2.23.0
+    imagePullPolicy: IfNotPresent
+    env:
+    - name: CLIENT_ID
+      valueFrom:
+        secretKeyRef:
+          name: github-oauth-app
+          key: client-id
+    - name: CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: github-oauth-app
+          key: client-secret
+    - name: ARGO_CLIENT_ID
+      valueFrom:
+        secretKeyRef:
+          name: argo-server-sso
+          key: client-id
+    - name: ARGO_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: argo-server-sso
+          key: client-secret
+    grpc: false
+    ports:
+      web:
+        containerPort: 5556
+        servicePort: 80
+    ingress:
+      enabled: true
+      annotations:
+        kubernetes.io/ingress.class: ambassador
+      hosts:
+      - dex
+      path: /
+    config:
+      issuer: http://dex
+      logger:
+        level: debug
+      connectors:
+      - type: github
+        id: github
+        name: Github
+        config:
+          clientID: $CLIENT_ID
+          clientSecret: $CLIENT_SECRET
+          redirectURI: http://dex/callback
+          # orgs:
+          # - name: sageailabs
+      expiry:
+        signingKeys: 6h
+        idTokens: 24h
+      enablePasswordDB: false
+      staticClients:
+      - name: Argo
+        idEnv: ARGO_CLIENT_ID
+        secretEnv: ARGO_CLIENT_SECRET
+        redirectURIs:
+        - http://argo.localhost/oauth2/callback

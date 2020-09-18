@@ -1,0 +1,70 @@
+apiVersion: helm.fluxcd.io/v1
+kind: HelmRelease
+metadata:
+  name: argo
+spec:
+  releaseName: argo
+  chart:
+    repository: https://argoproj.github.io/argo-helm
+    name: argo
+    version: 0.11.0
+  values:
+    images:
+      namespace: docker.io/argoproj
+      tag: v2.9.5
+      pullPolicy: IfNotPresent
+    installCRD: true
+    singleNamespace: true
+    controller:
+      metricsConfig:
+        enabled: true
+        port: 8080  # Must match the port in the Datadog annotation.
+      telemetryConfig:
+        enabled: true
+      serviceMonitor:
+        enabled: false
+      workflowNamespaces:
+      - test
+      workflowDefaults:
+        spec:
+          serviceAccountName: argo-workflow
+      containerRuntimeExecutor: pns  # Required as Kind does not run docker.
+      resources:
+        requests:
+          cpu: 30m
+          memory: 150Mi
+        limits:
+          # CPU limit is left unset until we need it (e.g., we experience
+          # issues with runaway CPU consumption).
+          memory: 220Mi
+      replicas: 1
+      pdb:
+        enabled: true
+        minAvailable: 1
+    server:
+      ingress:
+        enabled: true
+        annotations:
+          kubernetes.io/ingress.class: ambassador
+        hosts:
+        - argo.localhost
+      sso:
+        issuer: http://dex
+        clientId:
+          name: argo-server-sso
+          key: client-id
+        clientSecret:
+          name: argo-server-sso
+          key: client-secret
+        redirectUrl: http://argo.localhost/oauth2/callback
+      extraArgs:
+      - --auth-mode=sso
+      - --auth-mode=client
+      resources:
+        requests:
+          cpu: 30m
+          memory: 80Mi
+        limits:
+          # CPU limit is left unset until we need it (e.g., we experience
+          # issues with runaway CPU consumption).
+          memory: 160Mi
