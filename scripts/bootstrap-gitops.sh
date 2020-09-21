@@ -56,7 +56,7 @@ require_binary kubectl
 
 repo_host_port="$(echo "$git_repo" | sed -e 's/^\(ssh:\/\/\)\{0,1\}\([a-z][a-z0-9-]*@\)\{0,1\}\([^\/]*\).*/\3/')"
 repo_host="${repo_host_port%:*}"
-if test "$repo_host_port" = "$repo_host" ; then
+if echo "$git_repo" | grep -q '^git@github.com:' || test "$repo_host_port" = "$repo_host" ; then
   repo_port=
 else
   repo_port="${repo_host_port#*:}"
