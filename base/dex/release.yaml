@@ -5,10 +5,12 @@ metadata:
 spec:
   releaseName: dex
   chart:
-    repository: https://kubernetes-charts.storage.googleapis.com
-    name: dex
-    version: 2.11.0
-  skipCRDs: true
+    spec:
+      chart: dex
+      version: 2.11.0
+      sourceRef:
+        kind: HelmRepository
+        name: stable
   values:
     image: quay.io/dexidp/dex
     imageTag: v2.23.0

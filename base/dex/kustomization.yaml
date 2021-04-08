@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
 - github-oauth-app-secret.yaml
 - release.yaml
+- repository.yaml

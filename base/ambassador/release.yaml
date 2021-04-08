@@ -5,10 +5,12 @@ metadata:
 spec:
   releaseName: ambassador
   chart:
-    repository: https://www.getambassador.io
-    name: ambassador
-    version: 6.4.1
-  skipCRDs: false
+    spec:
+      chart: ambassador
+      version: 6.4.1
+      sourceRef:
+        kind: HelmRepository
+        name: ambassador
   values:
     image:
       repository: quay.io/datawire/ambassador

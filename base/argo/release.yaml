@@ -5,9 +5,12 @@ metadata:
 spec:
   releaseName: argo
   chart:
-    repository: https://argoproj.github.io/argo-helm
-    name: argo
-    version: 0.11.0
+    spec:
+      chart: argo
+      version: 0.11.0
+      sourceRef:
+        kind: HelmRepository
+        name: argo
   values:
     images:
       namespace: docker.io/argoproj
