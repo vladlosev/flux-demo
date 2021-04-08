@@ -4,6 +4,7 @@ metadata:
   name: argo
 spec:
   releaseName: argo
+  interval: 1m
   chart:
     spec:
       chart: argo

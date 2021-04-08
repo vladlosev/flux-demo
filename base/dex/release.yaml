@@ -4,6 +4,9 @@ metadata:
   name: dex
 spec:
   releaseName: dex
+  interval: 1m
+  install:
+    skipCRDs: true
   chart:
     spec:
       chart: dex

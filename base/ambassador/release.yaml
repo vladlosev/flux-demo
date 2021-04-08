@@ -4,6 +4,9 @@ metadata:
   name: ambassador
 spec:
   releaseName: ambassador
+  interval: 1m
+  install:
+    skipCRDs: true
   chart:
     spec:
       chart: ambassador
