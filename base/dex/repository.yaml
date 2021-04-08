@@ -1,7 +1,7 @@
 apiVersion: source.toolkit.fluxcd.io/v1beta1
 kind: HelmRepository
 metadata:
-  name: stable
+  name: dex
 spec:
-  url: https://kubernetes-charts.storage.googleapis.com/
+  url: https://wiremind.github.com/wiremind-helm-charts/
   interval: 5m
