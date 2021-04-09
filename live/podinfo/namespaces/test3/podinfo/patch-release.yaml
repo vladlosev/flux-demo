@@ -4,4 +4,5 @@ metadata:
   name: podinfo
 spec:
   chart:
-    version: 3.2.1
+    spec:
+      version: 3.2.1
