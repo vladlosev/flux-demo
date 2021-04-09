@@ -1,0 +1,7 @@
+apiVersion: image.toolkit.fluxcd.io/v1alpha1
+kind: ImageRepository
+metadata:
+  name: podinfo
+spec:
+  interval: 10m
+  image: docker.io/stefanprodan/podinfo
