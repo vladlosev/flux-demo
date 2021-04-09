@@ -4,4 +4,5 @@ resources:
 - helmrepository.yaml
 - imagepolicy.yaml
 - imagerepository.yaml
+- imageupdateautomation.yaml
 - release.yaml

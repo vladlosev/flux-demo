@@ -1,0 +1,14 @@
+apiVersion: image.tooolkit.fluxcd.io/v1alpha1
+kind: ImageUpdateAutomation
+metadata:
+  name: apps
+spec:
+  checkout:
+    branch: master
+    gitRepositoryRef:
+      name: flux-demo
+      namespace: flux-system
+  interval: 1m
+  commit:
+    authorName: Fluxbot
+    authorEmail: vlad@losev.com
