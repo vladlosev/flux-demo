@@ -1,0 +1,8 @@
+apiVersion: image.toolkit.fluxcd.io/v1alpha1
+kind: ImagePolicy
+metadata:
+  name: semver-latest
+spec:
+  policy:
+    semver:
+      range: >0.0.0
