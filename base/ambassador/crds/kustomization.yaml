@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- filter.yaml
+- filterpolicy.yaml
+- authservice.yaml
+- consulresolver.yaml
+- devportal.yaml
+- host.yaml
+- kubernetesendpointresolver.yaml
+- kubernetesserviceresolver.yaml
+- logservice.yaml
+- mapping.yaml
+- module.yaml
+- ratelimitservice.yaml
+- tcpmapping.yaml
+- tlscontext.yaml
+- tracingservice.yaml
+- project.yaml
+- projectcontroller.yaml
+- projectrevision.yaml
+- ratelimit.yaml

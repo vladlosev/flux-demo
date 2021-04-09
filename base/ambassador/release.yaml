@@ -10,14 +10,14 @@ spec:
   chart:
     spec:
       chart: ambassador
-      version: 6.4.1
+      version: 6.6.2
       sourceRef:
         kind: HelmRepository
         name: ambassador
   values:
     image:
       repository: quay.io/datawire/ambassador
-      tag: 1.5.0
+      tag: 1.12.2
     crds:
       create: true
       enabled: true
