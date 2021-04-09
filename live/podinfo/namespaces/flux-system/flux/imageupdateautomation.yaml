@@ -7,7 +7,6 @@ spec:
     branch: master
     gitRepositoryRef:
       name: flux-demo
-      namespace: flux-system
   interval: 1m
   commit:
     authorName: Fluxbot
