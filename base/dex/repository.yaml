@@ -3,5 +3,5 @@ kind: HelmRepository
 metadata:
   name: dex
 spec:
-  url: https://wiremind.github.com/wiremind-helm-charts/
+  url: https://wiremind.github.io/wiremind-helm-charts/
   interval: 5m
