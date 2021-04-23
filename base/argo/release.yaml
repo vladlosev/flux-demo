@@ -20,6 +20,12 @@ spec:
     installCRD: true
     singleNamespace: true
     controller:
+      extraEnv:
+      - name: LEADER_ELECTION_IDENTITY
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: metadata.name
       metricsConfig:
         enabled: true
         port: 8080  # Must match the port in the Datadog annotation.
