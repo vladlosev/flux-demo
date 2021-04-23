@@ -7,3 +7,5 @@ resources:
 - workflow-role.yaml
 - workflow-rolebinding.yaml
 - workflow-serviceaccount.yaml
+- workflow-controller-leader-election-role.yaml
+- workflow-controller-leader-election-rolebinding.yaml
