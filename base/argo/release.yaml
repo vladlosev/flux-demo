@@ -70,6 +70,7 @@ spec:
       extraArgs:
       - --auth-mode=sso
       - --auth-mode=client
+      - --secure=false
       resources:
         requests:
           cpu: 30m
