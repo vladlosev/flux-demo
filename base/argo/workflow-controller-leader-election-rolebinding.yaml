@@ -8,4 +8,4 @@ roleRef:
   name: argo-workflow-controller-leader-election
 subjects:
 - kind: ServiceAccount
-  name: argo-workflow
+  name: argo
