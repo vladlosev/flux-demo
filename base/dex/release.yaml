@@ -39,6 +39,10 @@ spec:
         secretKeyRef:
           name: argo-server-sso
           key: client-secret
+    - name: KUBERNETES_POD_NAMESPACE
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.namespace
     grpc: false
     ports:
       web:
