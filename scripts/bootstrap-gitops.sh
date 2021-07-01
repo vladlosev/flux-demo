@@ -1,126 +1,56 @@
-#!/bin/bash
+#!/bin/sh
 
-# This script bootstraps Flux and Helm Operator in the current cluster, given
-# the URL of the repository and the root Flux directory there.
-#
-# Example:
-#
-# bootstrup-flux.sh -r ssh://flux@storage.losev.com:1975/volume1/git/kustomize-test -d live/development/main-kustomize
+set -ueo pipefail
 
-namespace=fluxcd
-
-git_repo=
-flux_root_dir=
-git_poll_interval=1m
-
-die() {
-  echo "$@" >/dev/stderr
+function die {
+  echo 2>/dev/stderr "$@"
   exit 1
 }
 
-usage() {
-  die "Usage: $0 -r <git-repo> -d <flux-root-dir> [-n <namespace>] [-i <git-poll-interval]"
+function usage {
+  die "Usage: $0 -k <gitub-private-key-file> [-n <namespace] [-p <start-path>]"
 }
 
-require_binary() {
-  if ! which "$1" >/dev/null ; then
-    die "$1 needs to be istalled."
-  fi
-}
+start_path=live/argo
+namespace=flux-system
+github_key_file=
 
-while getopts n:r:d:i: OPTNAME ; do
+while getopts p:n:k: OPTNAME ; do
   case $OPTNAME in
+    p) start_path="$OPTARG" ;;
     n) namespace="$OPTARG" ;;
-    r) git_repo="$OPTARG" ;;
-    d) flux_root_dir="$OPTARG" ;;
-    i) git_poll_interval="$OPTARG" ;;
+    k) github_key_file="$OPTARG" ;;
     *) usage ;;
   esac
 done
 shift $((OPTIND - 1))
 
-if test -z "$git_repo" ; then
-  die "Git repository is not specified."
-  usage
-fi
- 
-if test -z "$flux_root_dir" ; then
-  die "Flux root directory is not specified."
-  usage
+if test -z "$github_key_file" ; then
+ die "GitHub private key file must be specified via -k"
 fi
 
-require_binary fluxctl
-require_binary helm
-require_binary jq
-require_binary kubectl
-
-repo_host_port="$(echo "$git_repo" | sed -e 's/^\(ssh:\/\/\)\{0,1\}\([a-z][a-z0-9-]*@\)\{0,1\}\([^\/]*\).*/\3/')"
-repo_host="${repo_host_port%:*}"
-if echo "$git_repo" | grep -q '^git@github.com:' || test "$repo_host_port" = "$repo_host" ; then
-  repo_port=
-else
-  repo_port="${repo_host_port#*:}"
+if test -z "$GITHUB_TOKEN" ; then
+  die "GITHUB_TOKEN environment variable must be set to a token with these scopes:\npublic_repo, read:gpg_key, repo:status, repo_deployment"
 fi
 
-if test -n "$repo_port" ; then
-  keyscan_params=(-p "$repo_port" "$repo_host")
-else
-  keyscan_params=("$repo_host")
-fi
 
-known_hosts="$(ssh-keyscan "${keyscan_params[@]}")"
-if test "$repo_host" != github.com ; then
-  known_hosts="$known_hosts"$'\n'"$(ssh-keyscan github.com)"
-fi
-echo "$known_hosts"
-
-if ! kubectl get namespace "$namespace" &>/dev/null ; then
+if ! kubectl get namespace "$namespace" >/dev/null 2>&1 ; then
   kubectl create namespace "$namespace"
 fi
-
-helm repo add fluxcd https://charts.fluxcd.io
-helm repo update
-
-helm upgrade -i flux fluxcd/flux \
-  --namespace="$namespace" \
-  --set=helm.versions=v3 \
-  --set=git.user="$namespace" \
-  --set=git.email=vlad@losev.com \
-  --set=git.setAuthor=true \
-  --set=git.pollInterval="$git_poll_interval" \
-  --set=syncGarbageCollection.enabled=true \
-  --set=manifestGeneration=true \
-  --set=git.path="$flux_root_dir" \
-  --set=git.url="$git_repo" \
-  --set=ssh.known_hosts="$known_hosts"
-
-helm upgrade -i helm-operator fluxcd/helm-operator \
-  --namespace="$namespace" \
-  --set=git.pollInterval="$git_poll_interval" \
-  --set=chartsSyncInterval="$git_poll_interval" \
-  --set=helm.versions=v3 \
-  --set=git.ssh.secretName=flux-git-deploy \
-  --set=git.ssh.known_hosts="$known_hosts"
-
-
-flux_pod_running() {
-  pod_count="$(kubectl -n "$namespace" get pods -l app=flux -o json\
-    | jq '
-        .items 
-        | map(
-            select(
-              .status.phase == "Running"
-              and (.status.containerStatuses | all(.ready))))
-          | length')"
-  test "$pod_count" -gt 0
-}
-
-echo -n "Waiting for Flux pod to start..."
-while ! flux_pod_running ; do
-  sleep 5
-  echo -n .
-done
-echo
-
-echo "Configure the git repository to trust this public key:"
-fluxctl --k8s-fwd-ns=fluxcd identity
+github_key=$(cat "$github_key_file" | base64)
+host_key=$(ssh-keyscan -p 1975 storage.losev.com 2>/dev/null | base64)
+cat <<EOT | kubectl apply -f -
+  apiVersion: v1
+  kind: Secret
+  metadata:
+    namespace: $namespace
+    name: flux-deploy-user-creds
+  data:
+    identity: "$github_key"
+    known_hosts: "$host_key"
+  stringData:
+    identity.pub: $(ssh-keygen -y -f "$github_key_file")
+    username: git
+    password: $GITHUB_TOKEN
+EOT
+kustomize build "$start_path" | kubectl apply -f -
