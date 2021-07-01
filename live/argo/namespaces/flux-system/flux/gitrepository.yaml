@@ -7,5 +7,5 @@ spec:
   ref:
     branch: master
   secretRef:
-    name: flux-system # The secret has to be created externally
+    name: flux-deploy-user-creds # The secret has to be created externally
   url: https://github.com/vladlosev/flux-demo
