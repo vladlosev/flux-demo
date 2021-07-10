@@ -1,14 +1,14 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: argo
+  name: argo-workflows
 spec:
-  releaseName: argo
+  releaseName: argo-workflows
   interval: 1m
   chart:
     spec:
-      chart: argo
-      version: 0.16.9
+      chart: argo-workflows
+      version: 0.2.7
       sourceRef:
         kind: HelmRepository
         name: argo
